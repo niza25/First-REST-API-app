@@ -1,11 +1,14 @@
-const Sequelize = require('sequelize');
-const sequelize = new Sequelize('postgres://postgres:secret@localhost:5432/postgres', { define: { timestamps: false } });
+const Sequelize = require('sequelize')
+const connectionString = process.env.DATABASE_URL || 'postgres://postgres:secret@localhost:5432/postgres'
+const sequelize = new Sequelize(connectionString, {define: { timestamps: false }})
 const express = require('express');
+// my server
 const app = express();
 const bodyParser = require('body-parser')
 app.use(bodyParser.json());
 
-const port = 4000;
+const port = process.env.PORT || '4000';
+// listens to this port
 app.listen(port, () => `Listening on port ${port}`);
 
 const House = sequelize.define('house', {
@@ -16,13 +19,14 @@ const House = sequelize.define('house', {
 }, {
     tableName: 'houses'
   });
-
 // this creates the houses table in your database when your app starts
 House.sync();
 
-// to GET all houses
+// to GET all houses; listens to get requests
+// callback function will be run when the request will be send
 app.get('/houses', function (req, res, next) {
   House.findAll()
+  // a callback function is invoked with houses as a parameter
     .then(houses => {
       res.json({ houses: houses })
     })
